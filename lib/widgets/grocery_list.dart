@@ -87,6 +87,12 @@ class _GroceryListState extends State<GroceryList> {
           'shopping-test-2590e-default-rtdb.europe-west1.firebasedatabase.app',
           'shopping-list.json');
       response = await http.get(url);
+      if (response.body == 'null') {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
       final Map<String, dynamic> listData = json.decode(response.body);
       final List<GroceryItem> loadedItems = [];
       for (final item in listData.entries) {
@@ -127,10 +133,21 @@ class _GroceryListState extends State<GroceryList> {
     });
   }
 
-  void _removeItem(GroceryItem item) {
+  void _removeItem(GroceryItem item) async {
+    final index = _groceryItems.indexOf(item);
     setState(() {
       _groceryItems.remove(item);
       _isLoading = false;
     });
+
+    final url = Uri.https(
+        'shopping-test-2590e-default-rtdb.europe-west1.firebasedatabase.app',
+        'shopping-list/${item.id}.json');
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      setState(() {
+        _groceryItems.insert(index, item);
+      });
+    }
   }
 }
