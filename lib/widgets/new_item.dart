@@ -52,6 +52,7 @@ class _NewItemState extends State<NewItem> {
       if (!context.mounted) {
         return;
       }
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pop(GroceryItem(
           id: resData['name'],
           name: _enteredName,
